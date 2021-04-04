@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package vector.smcmall.space.api.pb.v1;
+option go_package = "git.sabertrain.com/vector-dev/smcmall/app/space/api/pb/v1";
+option java_multiple_files = true;
+option java_package = "com.vector.smcmall.space.api.pb.v1";
+option java_outer_classname = "UserProto";
+import "protoc-gen-gotag/tagger/tagger.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {
+    title : "用户服务";
+    version : "1.0";
+    license : {
+      name : "MIT";
+    },
+  },
+  schemes : HTTP;
+  consumes : "application/json";
+  produces : "application/json";
+};
+
+// UserService 用户服务
+service UserService {
+  // Get 获取用户
+  rpc Get(GetUserRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/api/v1/user/get/{id}"
+    };
+  };
+}
+
+// GetUserRequest 获取用户请求
+message GetUserRequest {
+  // Id 用户id
+  uint64 id = 1 [(tagger.tags) = "json:\"id\" xml:\"multi,omitempty\" validate:\"required,gte=3,lte=64\" label:\"用户id\"",(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The UUID field."} ];
+}
+
+// User 用户信息
+message User {
+  // Name 用户姓名
+  string name = 1 [(tagger.tags) = "json,xml:\"name,omitempty\"" ];
+}

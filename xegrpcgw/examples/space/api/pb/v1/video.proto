@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package vector.smcmall.space.api.pb.v1;
+option go_package = "git.sabertrain.com/vector-dev/smcmall/app/space/api/pb/v1";
+option java_multiple_files = true;
+option java_package = "com.vector.smcmall.space.api.pb.v1";
+option java_outer_classname = "VideoProto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {
+    title : "视频服务";
+    version : "1.0";
+    license : {
+      name : "MIT";
+    },
+  },
+  schemes : HTTP;
+  consumes : "application/json";
+  produces : "application/json";
+};
+
+// VideoService 视频服务
+service VideoService {
+    // Get 获取视频
+    rpc Get(GetVideoRequest) returns(Video){
+        option (google.api.http) = {
+            get: "/api/v1/video/get/{id}"
+        };
+    };
+    // Test 测试响应
+    rpc Test(google.protobuf.Empty) returns(TestResponse){
+        option (google.api.http) = {
+            post: "/api/v1/video/test"
+            body: "*"
+        };
+    };
+}
+
+// GetVideoRequest 获取视频请求
+message GetVideoRequest {
+    // Id 视频id
+    uint64 id = 1;
+}
+
+// Video 视频信息
+message Video {
+    // Id 视频id
+    uint64 id = 1;
+    // CreatedAt 创建时间
+    google.protobuf.Timestamp created_at = 2;
+    // UpdatedAt 修改时间
+    google.protobuf.Timestamp updated_at = 3;
+    // DeletedAt 删除时间
+    google.protobuf.Timestamp deleted_at = 4;
+}
+
+// TestResponse 测试响应
+message TestResponse {
+    // Id 视频id
+    string id = 1;
+    // Video 视频信息
+    Video video = 2;
+}
