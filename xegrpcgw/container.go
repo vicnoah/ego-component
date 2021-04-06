@@ -52,6 +52,7 @@ func (c *Container) Build(options ...Option) *Component {
 	// 初始化选项
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)
+	customerEcodeOption(c)
 	if c.config.EnableURLPathTrans {
 		urlPathTransOption(c)
 	}
