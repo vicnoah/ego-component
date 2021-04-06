@@ -39,12 +39,12 @@ func urlPathTransOption(c *Container) {
 
 func customerEcodeOption(c *Container) {
 	c.muxOptions = append(c.muxOptions, runtime.WithErrorHandler(func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
-		runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 		s := status.Convert(err)
 		pb := s.Proto()
 		if pb.Code >= 10000 {
 			w.WriteHeader(http.StatusOK)
 		}
+		runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
 	}))
 	c.muxOptions = append(c.muxOptions, runtime.WithStreamErrorHandler(func(ctx context.Context, err error) *status.Status {
 		return status.Convert(err)

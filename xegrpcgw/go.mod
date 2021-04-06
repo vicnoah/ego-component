@@ -1,6 +1,6 @@
 module git.sabertrain.com/vector-dev/ego-component/xegrpcgw
 
-go 1.15
+go 1.16
 
 require (
 	github.com/gotomicro/ego v0.4.1
