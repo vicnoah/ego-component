@@ -48,7 +48,8 @@ func (c *Container) setGrpcOptions() {
 }
 
 // Build 构建组件
-func (c *Container) Build(options ...Option) *Component {
+// dopt 参数一为日志记录特殊options
+func (c *Container) Build(dopt Option, options ...Option) *Component {
 	// 初始化选项
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)
@@ -57,11 +58,13 @@ func (c *Container) Build(options ...Option) *Component {
 	if c.config.EnableURLPathTrans {
 		urlPathTransOption(c)
 	}
+	// 初始化特殊依赖option
+	dopt(c)
+	mux := runtime.NewServeMux(c.muxOptions...)
+	c.mux = mux
 	for _, option := range options {
 		option(c)
 	}
-	mux := runtime.NewServeMux(c.muxOptions...)
-	c.mux = mux
 	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
 }
