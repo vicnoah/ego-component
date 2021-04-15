@@ -128,6 +128,7 @@ func WithLogRecord(f func(lg LogDetail)) Option {
 			} else {
 				userid = userids[0]
 			}
+			fmt.Println("回调请求日志")
 			f(LogDetail{
 				Action:     action,
 				URL:        url,
