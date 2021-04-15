@@ -2,6 +2,7 @@ package xegrpcgw
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -43,6 +44,7 @@ func WithLogRecord(f func(lg LogDetail)) Option {
 				username   string
 				userid     string
 			)
+			fmt.Println("读取请求日志")
 			sm, ok := runtime.ServerMetadataFromContext(ctx)
 			if !ok {
 				return nil

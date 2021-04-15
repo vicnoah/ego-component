@@ -2,7 +2,6 @@ package xegrpcgw
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -60,13 +59,6 @@ func httpResponseModifier(c *Container) {
 		if !ok {
 			return nil
 		}
-		for k, v := range md.HeaderMD {
-			fmt.Printf("md key: %s, value: %s\n", k, v)
-		}
-		for k, v := range md.TrailerMD {
-			fmt.Printf("md key: %s, value: %s\n", k, v)
-		}
-
 		// set http status code
 		if vals := md.HeaderMD.Get("x-http-code"); len(vals) > 0 {
 			code, err := strconv.Atoi(vals[0])
