@@ -44,12 +44,14 @@ func WithLogRecord(f func(lg LogDetail)) Option {
 				username   string
 				userid     string
 			)
-			fmt.Println("读取请求日志")
 			sm, ok := runtime.ServerMetadataFromContext(ctx)
 			if !ok {
 				return nil
 			}
 			md := sm.TrailerMD
+			for k, v := range md {
+				fmt.Printf("key: %s, value: %s\n", k, v)
+			}
 			isLogWrite, ok := md[XAppLogWrite]
 			if !ok {
 				return nil
