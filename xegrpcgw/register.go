@@ -110,25 +110,14 @@ func WithLogRecord(f func(lg LogDetail)) Option {
 			}
 			// 用户名
 			usernames, ok := md[XAppRequestUserName]
-			if !ok {
-				return nil
-			}
-			if len(usernames) == 0 {
-				return nil
-			} else {
+			if ok && len(usernames) != 0 {
 				username = usernames[0]
 			}
 			// 用户id
 			userids, ok := md[XAppRequestUserID]
-			if !ok {
-				return nil
-			}
-			if len(userids) == 0 {
-				return nil
-			} else {
+			if ok && len(userids) != 0 {
 				userid = userids[0]
 			}
-			fmt.Println("回调请求日志")
 			f(LogDetail{
 				Action:     action,
 				URL:        url,
