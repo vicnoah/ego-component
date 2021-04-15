@@ -2,7 +2,6 @@ package xegrpcgw
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -49,9 +48,6 @@ func WithLogRecord(f func(lg LogDetail)) Option {
 				return nil
 			}
 			md := sm.TrailerMD
-			for k, v := range md {
-				fmt.Printf("key: %s, value: %s\n", k, v)
-			}
 			isLogWrite, ok := md[XAppLogWrite]
 			if !ok {
 				return nil
