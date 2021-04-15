@@ -57,11 +57,11 @@ func (c *Container) Build(options ...Option) *Component {
 	if c.config.EnableURLPathTrans {
 		urlPathTransOption(c)
 	}
-	mux := runtime.NewServeMux(c.muxOptions...)
-	c.mux = mux
 	for _, option := range options {
 		option(c)
 	}
-	server := newComponent(c.name, mux, c.config, c.logger)
+	mux := runtime.NewServeMux(c.muxOptions...)
+	c.mux = mux
+	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
 }
