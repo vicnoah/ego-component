@@ -26,6 +26,7 @@ func withTracer(c *Container) grpc.DialOption {
 // handlerInterceptor 中间件注入
 func handlerInterceptor(c *Container) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("执行函数")
 		for _, handler := range c.handlerFuncs {
 			handler(w, r)
 		}
