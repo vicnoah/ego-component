@@ -64,9 +64,6 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	dopt(c)
 	mux := runtime.NewServeMux(c.muxOptions...)
 	c.mux = mux
-	for _, option := range options {
-		option(c)
-	}
 	// 度量
 	if true {
 		metricServerInterceptor(c)
@@ -77,6 +74,9 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	}
 	for _, handler := range c.muxWrappers {
 		handler(mux)
+	}
+	for _, option := range options {
+		option(c)
 	}
 	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
