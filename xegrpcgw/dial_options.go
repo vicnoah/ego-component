@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gotomicro/ego/core/eapp"
+	"github.com/gotomicro/ego/core/elog"
 	"github.com/gotomicro/ego/core/emetric"
 	"github.com/gotomicro/ego/core/etrace"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -56,6 +57,7 @@ func tracingWrapper(h http.Handler) http.Handler {
 		)
 		r = r.WithContext(ctx)
 		defer span.Finish()
+		elog.Info("http", elog.FieldType("http"), elog.FieldMethod(r.URL.Path), elog.FieldPeerIP(r.RemoteAddr))
 		// 判断了全局jaeger的设置，所以这里一定能够断言为jaeger
 		r.Header.Set(eapp.EgoTraceIDName(), span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
 	})
