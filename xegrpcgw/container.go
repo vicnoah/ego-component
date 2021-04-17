@@ -17,6 +17,7 @@ type Container struct {
 	muxOptions      []runtime.ServeMuxOption
 	ctx             context.Context
 	mux             *runtime.ServeMux
+	muxWrappers     []handler
 	grpcDialOptions []grpc.DialOption
 }
 
@@ -44,6 +45,7 @@ func Load(key string) *Container {
 }
 
 func (c *Container) setGrpcOptions() {
+	// 设置options
 	c.grpcDialOptions = append(c.grpcDialOptions, grpc.WithInsecure())
 }
 
@@ -64,6 +66,17 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	c.mux = mux
 	for _, option := range options {
 		option(c)
+	}
+	// 度量
+	if true {
+		metricServerInterceptor(c)
+	}
+	// tracing
+	if true {
+		traceServerIntercepter(c)
+	}
+	for _, handler := range c.muxWrappers {
+		handler(mux)
 	}
 	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
