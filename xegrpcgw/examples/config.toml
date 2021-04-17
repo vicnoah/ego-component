@@ -4,5 +4,11 @@
    enableURLPathTrans=true
    enableTraceInterceptor=true
    enableMetricInterceptor=false
+   enableCors=true
+   accessControlAllowOrigin="*"
+   accessControlAllowHeaders="Content-Type,AccessToken,X-CSRF-Token, Authorization, Token"
+   accessControlAllowCredentials="true"
+   accessControlAllowMethods="POST, GET, OPTIONS, PUT, DELETE"
+   contentType="application/json;charset=UTF-8"
    incomingHeaders=["Token", "X-User-Id"]
    grpcEndpoint="127.0.0.1:9000"

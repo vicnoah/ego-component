@@ -32,6 +32,21 @@ func handlerInterceptor(c *Container) http.Handler {
 	})
 }
 
+// corsIntercepter 跨域注入
+func corsIntercepter(c *Container) {
+	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", c.config.AccessControlAllowOrigin)           // 允许访问所有域，可以换成具体url，注意仅具体url才能带cookie信息
+		w.Header().Add("Access-Control-Allow-Headers", c.config.AccessControlAllowHeaders)         //header的类型
+		w.Header().Add("Access-Control-Allow-Credentials", c.config.AccessControlAllowCredentials) //设置为true，允许ajax异步请求带cookie信息
+		w.Header().Add("Access-Control-Allow-Methods", c.config.AccessControlAllowMethods)         //允许请求方法
+		w.Header().Set("content-type", c.config.ContentType)                                       //返回数据格式是json
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}))
+}
+
 // metricServerInterceptor 度量服务
 func metricServerInterceptor(c *Container) {
 	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

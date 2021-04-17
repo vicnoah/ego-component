@@ -66,6 +66,10 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	if c.config.EnableMetricInterceptor {
 		metricServerInterceptor(c)
 	}
+	// 跨域
+	if c.config.EnableCors {
+		corsIntercepter(c)
+	}
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)
 	customerEcodeOption(c)
