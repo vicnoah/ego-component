@@ -54,13 +54,13 @@ func (c *Container) setGrpcOptions() {
 // dopt 参数一为日志记录特殊options
 func (c *Container) Build(dopt Option, options ...Option) *Component {
 	// 初始化选项
-	// 度量
-	if true {
-		metricServerInterceptor(c)
-	}
 	// tracing
 	if true {
 		traceServerIntercepter(c)
+	}
+	// 度量
+	if true {
+		metricServerInterceptor(c)
 	}
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)
@@ -73,11 +73,11 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	dopt(c)
 	mux := runtime.NewServeMux(c.muxOptions...)
 	c.mux = mux
+	// 注入handler
+	handlerInterceptor(c)
 	for _, option := range options {
 		option(c)
 	}
-	// 注入handler
-	handlerInterceptor(c)
 	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
 }
