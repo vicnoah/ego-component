@@ -10,7 +10,6 @@ import (
 	"github.com/gotomicro/ego/core/elog"
 
 	"github.com/gotomicro/ego/server"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
 // PackageName ...
@@ -22,7 +21,7 @@ type Component struct {
 	name   string
 	config *Config
 	logger *elog.Component
-	*runtime.ServeMux
+	http.Handler
 	Server   *http.Server
 	listener net.Listener
 }
@@ -33,12 +32,12 @@ func WithContext(ctx context.Context, mux *Component) *Component {
 }
 
 // newComponent ...
-func newComponent(name string, mux *runtime.ServeMux, config *Config, logger *elog.Component) *Component {
+func newComponent(name string, handler http.Handler, config *Config, logger *elog.Component) *Component {
 	return &Component{
 		name:     name,
 		config:   config,
 		logger:   logger,
-		ServeMux: mux,
+		Handler:  handler,
 		listener: nil,
 	}
 }

@@ -2,6 +2,7 @@ package xegrpcgw
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
@@ -17,7 +18,7 @@ type Container struct {
 	muxOptions      []runtime.ServeMuxOption
 	ctx             context.Context
 	mux             *runtime.ServeMux
-	muxWrappers     []handler
+	handlerFuncs    []http.HandlerFunc
 	grpcDialOptions []grpc.DialOption
 }
 
@@ -53,6 +54,14 @@ func (c *Container) setGrpcOptions() {
 // dopt 参数一为日志记录特殊options
 func (c *Container) Build(dopt Option, options ...Option) *Component {
 	// 初始化选项
+	// 度量
+	if true {
+		metricServerInterceptor(c)
+	}
+	// tracing
+	if true {
+		traceServerIntercepter(c)
+	}
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)
 	customerEcodeOption(c)
@@ -64,20 +73,11 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	dopt(c)
 	mux := runtime.NewServeMux(c.muxOptions...)
 	c.mux = mux
-	// 度量
-	if true {
-		metricServerInterceptor(c)
-	}
-	// tracing
-	if true {
-		traceServerIntercepter(c)
-	}
-	for _, handler := range c.muxWrappers {
-		handler(mux)
-	}
 	for _, option := range options {
 		option(c)
 	}
+	// 注入handler
+	handlerInterceptor(c)
 	server := newComponent(c.name, c.mux, c.config, c.logger)
 	return server
 }

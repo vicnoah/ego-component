@@ -16,9 +16,6 @@ import (
 	"github.com/uber/jaeger-client-go"
 )
 
-// handler 中间件
-type handler func(http.Handler) http.Handler
-
 // withTracer tracing服务
 func withTracer(c *Container) grpc.DialOption {
 	return grpc.WithUnaryInterceptor(grpc_opentracing.UnaryClientInterceptor(
@@ -26,26 +23,28 @@ func withTracer(c *Container) grpc.DialOption {
 	))
 }
 
-// metricServerInterceptor 度量服务
-func metricServerInterceptor(c *Container) {
-	c.muxWrappers = append(c.muxWrappers, metricWrapper)
+// handlerInterceptor 中间件注入
+func handlerInterceptor(c *Container) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		for _, handler := range c.handlerFuncs {
+			handler(w, r)
+		}
+		c.mux.ServeHTTP(w, r)
+	})
 }
 
-func metricWrapper(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// metricServerInterceptor 度量服务
+func metricServerInterceptor(c *Container) {
+	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		beg := time.Now()
 		emetric.ServerHandleHistogram.Observe(float64(time.Since(beg).Seconds()), emetric.TypeHTTP, r.Method+"."+r.URL.Path, r.Header.Get("app"))
 		emetric.ServerHandleCounter.Inc(emetric.TypeHTTP, r.Method+"."+r.URL.Path, r.Header.Get("app"), http.StatusText(r.Response.StatusCode))
-	})
+	}))
 }
 
 // traceServerIntercepter 链路追踪服务
 func traceServerIntercepter(c *Container) {
-	c.muxWrappers = append(c.muxWrappers, tracingWrapper)
-}
-
-func tracingWrapper(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("开始度量")
 		span, ctx := etrace.StartSpanFromContext(
 			r.Context(),
@@ -62,24 +61,5 @@ func tracingWrapper(h http.Handler) http.Handler {
 		elog.Info("http", elog.FieldType("http"), elog.FieldMethod(r.URL.Path), elog.FieldPeerIP(r.RemoteAddr))
 		// 判断了全局jaeger的设置，所以这里一定能够断言为jaeger
 		r.Header.Set(eapp.EgoTraceIDName(), span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
-	})
+	}))
 }
-
-// func tracingWrapper(h http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		parentSpanContext, err := opentracing.GlobalTracer().Extract(
-// 			opentracing.HTTPHeaders,
-// 			opentracing.HTTPHeadersCarrier(r.Header))
-// 		if err == nil || err == opentracing.ErrSpanContextNotFound {
-// 			serverSpan := opentracing.GlobalTracer().StartSpan(
-// 				"ServeHTTP",
-// 				// this is magical, it attaches the new span to the parent parentSpanContext, and creates an unparented one if empty.
-// 				ext.RPCServerOption(parentSpanContext),
-// 				grpcGatewayTag,
-// 			)
-// 			r = r.WithContext(opentracing.ContextWithSpan(r.Context(), serverSpan))
-// 			defer serverSpan.Finish()
-// 		}
-// 		h.ServeHTTP(w, r)
-// 	})
-// }
