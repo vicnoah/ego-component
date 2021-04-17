@@ -51,7 +51,7 @@ func traceServerIntercepter(c *Container) {
 			r.Method+"."+r.URL.Path,
 			etrace.TagComponent("http"),
 			etrace.TagSpanKind("server"),
-			etrace.HeaderExtractor(r.Response.Header),
+			// etrace.HeaderExtractor(r.Response.Header),
 			etrace.CustomTag("http.url", r.URL.Path),
 			etrace.CustomTag("http.method", r.Method),
 			etrace.CustomTag("peer.ipv4", r.RemoteAddr),
