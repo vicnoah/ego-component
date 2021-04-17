@@ -1,7 +1,6 @@
 package xegrpcgw
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -68,7 +67,6 @@ func traceServerIntercepter(c *Container) {
 			fields = append(fields, elog.FieldTid(etrace.ExtractTraceID(ctx)))
 		}
 		c.logger.Info("grpc-gateway", fields...)
-		fmt.Println(span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
 		// 判断了全局jaeger的设置，所以这里一定能够断言为jaeger
 		r.Header.Set(eapp.EgoTraceIDName(), span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
 	}))
