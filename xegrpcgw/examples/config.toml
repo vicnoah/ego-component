@@ -6,9 +6,9 @@
    enableMetricInterceptor=false
    enableCors=true
    accessControlAllowOrigin="*"
-   accessControlAllowHeaders="Content-Type,AccessToken,X-CSRF-Token, Authorization, Token"
+   accessControlAllowHeaders="Content-Type,AccessToken,X-CSRF-Token,X-App-Token,Authorization,Token"
    accessControlAllowCredentials="true"
-   accessControlAllowMethods="POST, GET, OPTIONS, PUT, DELETE"
+   accessControlAllowMethods="GET,POST,PUT,DELETE,OPTIONS"
    contentType="application/json;charset=UTF-8"
    incomingHeaders=["Token", "X-User-Id"]
    grpcEndpoint="127.0.0.1:9000"

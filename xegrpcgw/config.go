@@ -33,9 +33,9 @@ func DefaultConfig() *Config {
 		EnableMetricInterceptor:       false,
 		EnableCors:                    true,
 		AccessControlAllowOrigin:      "*",
-		AccessControlAllowHeaders:     "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token",
+		AccessControlAllowHeaders:     "Content-Type,AccessToken,X-CSRF-Token,X-App-Token,Authorization,Token",
 		AccessControlAllowCredentials: "true",
-		AccessControlAllowMethods:     "POST, GET, OPTIONS, PUT, DELETE",
+		AccessControlAllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		ContentType:                   "application/json;charset=UTF-8",
 		EnableURLPathTrans:            true,
 	}
