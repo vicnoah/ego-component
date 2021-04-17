@@ -1,6 +1,7 @@
 package xegrpcgw
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -45,6 +46,7 @@ func traceServerIntercepter(c *Container) {
 
 func tracingWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("开始度量")
 		span, ctx := etrace.StartSpanFromContext(
 			r.Context(),
 			r.Method+"."+r.URL.Path,
