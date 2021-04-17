@@ -17,8 +17,8 @@ import (
 // handler 中间件
 type handler func(http.Handler) http.Handler
 
-// WithTracer tracing服务
-func WithTracer(c *Container) grpc.DialOption {
+// withTracer tracing服务
+func withTracer(c *Container) grpc.DialOption {
 	return grpc.WithUnaryInterceptor(grpc_opentracing.UnaryClientInterceptor(
 		grpc_opentracing.WithTracer(opentracing.GlobalTracer()),
 	))

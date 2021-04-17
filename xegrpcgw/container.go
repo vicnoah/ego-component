@@ -46,7 +46,7 @@ func Load(key string) *Container {
 
 func (c *Container) setGrpcOptions() {
 	// 设置options
-	c.grpcDialOptions = append(c.grpcDialOptions, grpc.WithInsecure())
+	c.grpcDialOptions = append(c.grpcDialOptions, grpc.WithInsecure(), withTracer(c))
 }
 
 // Build 构建组件
