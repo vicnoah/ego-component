@@ -61,7 +61,7 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	}
 	// 度量
 	if true {
-		metricServerInterceptor(c)
+		// metricServerInterceptor(c)
 	}
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)

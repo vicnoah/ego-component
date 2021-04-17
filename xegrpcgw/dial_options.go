@@ -58,7 +58,7 @@ func traceServerIntercepter(c *Container) {
 		)
 		r = r.WithContext(ctx)
 		defer span.Finish()
-		elog.Info("http", elog.FieldType("http"), elog.FieldMethod(r.URL.Path), elog.FieldPeerIP(r.RemoteAddr))
+		elog.Info("http", elog.FieldType("http"), elog.FieldMethod(r.URL.Path), elog.FieldPeerIP(r.RemoteAddr), elog.FieldTid(etrace.ExtractTraceID(ctx)))
 		// 判断了全局jaeger的设置，所以这里一定能够断言为jaeger
 		r.Header.Set(eapp.EgoTraceIDName(), span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
 	}))
