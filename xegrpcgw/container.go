@@ -28,6 +28,7 @@ func DefaultContainer() *Container {
 		config:          DefaultConfig(),
 		logger:          elog.EgoLogger.With(elog.FieldComponent(PackageName)),
 		ctx:             context.Background(),
+		handlerFuncs:    make([]http.HandlerFunc, 0),
 		grpcDialOptions: make([]grpc.DialOption, 0),
 	}
 }
