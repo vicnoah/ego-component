@@ -37,13 +37,15 @@ func metricServerInterceptor(c *Container) {
 	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		beg := time.Now()
 		emetric.ServerHandleHistogram.Observe(float64(time.Since(beg).Seconds()), emetric.TypeHTTP, r.Method+"."+r.URL.Path, r.Header.Get("app"))
-		emetric.ServerHandleCounter.Inc(emetric.TypeHTTP, r.Method+"."+r.URL.Path, r.Header.Get("app"), http.StatusText(r.Response.StatusCode))
+		emetric.ServerHandleCounter.Inc(emetric.TypeHTTP, r.Method+"."+r.URL.Path, r.Header.Get("app"), http.StatusText(200))
 	}))
 }
 
 // traceServerIntercepter 链路追踪服务
 func traceServerIntercepter(c *Container) {
 	c.handlerFuncs = append(c.handlerFuncs, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 为了性能考虑，如果要加日志字段，需要改变slice大小
+		var fields = make([]elog.Field, 0, 15)
 		span, ctx := etrace.StartSpanFromContext(
 			r.Context(),
 			r.Method+"."+r.URL.Path,
@@ -56,7 +58,16 @@ func traceServerIntercepter(c *Container) {
 		)
 		r = r.WithContext(ctx)
 		defer span.Finish()
-		c.logger.Info("grpc-gateway", elog.FieldType("http"), elog.FieldMethod(r.URL.Path), elog.FieldPeerIP(r.RemoteAddr), elog.FieldTid(etrace.ExtractTraceID(ctx)))
+		fields = append(fields,
+			elog.FieldType("http"),
+			elog.FieldMethod(r.URL.Path),
+			elog.FieldPeerIP(r.RemoteAddr),
+			elog.FieldTid(etrace.ExtractTraceID(ctx)),
+		)
+		if c.config.EnableTraceInterceptor && opentracing.IsGlobalTracerRegistered() {
+			fields = append(fields, elog.FieldTid(etrace.ExtractTraceID(ctx)))
+		}
+		c.logger.Info("grpc-gateway", fields...)
 		// 判断了全局jaeger的设置，所以这里一定能够断言为jaeger
 		r.Header.Set(eapp.EgoTraceIDName(), span.(*jaeger.Span).Context().(jaeger.SpanContext).TraceID().String())
 	}))

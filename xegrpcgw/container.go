@@ -48,8 +48,7 @@ func Load(key string) *Container {
 
 func (c *Container) setGrpcOptions() {
 	// 设置options
-	// withTracer(c)
-	c.grpcDialOptions = append(c.grpcDialOptions, grpc.WithInsecure())
+	c.grpcDialOptions = append(c.grpcDialOptions, grpc.WithInsecure(), withTracer(c))
 }
 
 // Build 构建组件
@@ -57,12 +56,12 @@ func (c *Container) setGrpcOptions() {
 func (c *Container) Build(dopt Option, options ...Option) *Component {
 	// 初始化选项
 	// tracing
-	if true {
+	if c.config.EnableTraceInterceptor {
 		traceServerIntercepter(c)
 	}
 	// 度量
-	if true {
-		// metricServerInterceptor(c)
+	if c.config.EnableMetricInterceptor {
+		metricServerInterceptor(c)
 	}
 	c.setGrpcOptions()
 	incomingHeaderMatcherOption(c)

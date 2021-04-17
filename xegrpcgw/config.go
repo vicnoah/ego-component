@@ -23,8 +23,8 @@ func DefaultConfig() *Config {
 	return &Config{
 		Host:                    eflag.String("host"),
 		Port:                    8080,
-		EnableTraceInterceptor:  true,
-		EnableMetricInterceptor: true,
+		EnableTraceInterceptor:  false,
+		EnableMetricInterceptor: false,
 		EnableURLPathTrans:      true,
 	}
 }

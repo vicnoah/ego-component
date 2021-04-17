@@ -2,5 +2,7 @@
    host="0.0.0.0"
    port=8081
    enableURLPathTrans=true
+   enableTraceInterceptor=true
+   enableMetricInterceptor=false
    incomingHeaders=["Token", "X-User-Id"]
    grpcEndpoint="127.0.0.1:9000"
