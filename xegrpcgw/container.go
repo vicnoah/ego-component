@@ -73,11 +73,10 @@ func (c *Container) Build(dopt Option, options ...Option) *Component {
 	dopt(c)
 	mux := runtime.NewServeMux(c.muxOptions...)
 	c.mux = mux
-	// 注入handler
-	handlerInterceptor(c)
 	for _, option := range options {
 		option(c)
 	}
-	server := newComponent(c.name, c.mux, c.config, c.logger)
+	// 注入handler
+	server := newComponent(c.name, handlerInterceptor(c), c.config, c.logger)
 	return server
 }
