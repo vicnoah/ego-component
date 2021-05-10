@@ -1,4 +1,0 @@
-[k8s]
-addr=""
-token=""
-namespaces=["default"]

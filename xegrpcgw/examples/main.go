@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 
-	"git.sabertrain.com/vector-dev/ego-component/xegrpcgw"
-	v1 "git.sabertrain.com/vector-dev/ego-component/xegrpcgw/examples/space/api/pb/v1"
 	"github.com/gotomicro/ego"
 	"github.com/gotomicro/ego/core/elog"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/vicnoah/ego-component/xegrpcgw"
+	v1 "github.com/vicnoah/ego-component/xegrpcgw/examples/space/api/pb/v1"
 	"google.golang.org/grpc"
 )
 

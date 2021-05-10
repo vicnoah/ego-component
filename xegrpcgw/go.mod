@@ -1,4 +1,4 @@
-module git.sabertrain.com/vector-dev/ego-component/xegrpcgw
+module github.com/vicnoah/ego-component/xegrpcgw
 
 go 1.16
 

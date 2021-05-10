@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	md_runtime "git.sabertrain.com/vector-dev/ego-component/xegrpcgw/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	md_runtime "github.com/vicnoah/ego-component/xegrpcgw/runtime"
 )
 
 const (
