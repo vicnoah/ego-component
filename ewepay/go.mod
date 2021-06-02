@@ -1,4 +1,4 @@
-module github.com/gotomicro/ego-component/ewepay
+module github.com/vicnoah/ego-component/ewepay
 
 go 1.16
 

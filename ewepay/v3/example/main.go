@@ -9,8 +9,8 @@ import (
 	"net/http"
 
 	"github.com/gotomicro/ego"
-	v3 "github.com/gotomicro/ego-component/ewepay/v3"
 	"github.com/gotomicro/ego/core/elog"
+	v3 "github.com/vicnoah/ego-component/ewepay/v3"
 )
 
 var ewepay *v3.Component
