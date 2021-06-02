@@ -14,7 +14,9 @@ import (
 // export EGO_DEBUG=true && go run main.go --config=config.toml
 func main() {
 	if err := ego.New().Serve(func() *xegrpcgw.Component {
-		server := xegrpcgw.Load("server.test").Build(xegrpcgw.WithServiceHandler(func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+		server := xegrpcgw.Load("server.test").Build(xegrpcgw.WithLogRecord(func(lg xegrpcgw.LogDetail) (err error) {
+			return
+		})), xegrpcgw.WithServiceHandler(func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 			// 用户服务网关
 			err = v1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, endpoint, opts)
 			if err != nil {
