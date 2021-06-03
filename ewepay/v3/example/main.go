@@ -35,7 +35,7 @@ func invokeWepay() error {
 	defer cancel()
 	prepayID, err := ewepay.JsAPIPrepay(ctx, jsapi.PrepayRequest{
 		Description: core.String("通威旗舰店-罗非鱼饲料"),
-		OutTradeNo:  core.String("1217752501201407033233368029"),
+		OutTradeNo:  core.String("1217752501201407033233368030"),
 		Attach:      core.String("自定义数据说明"),
 		Amount: &jsapi.Amount{
 			Total:    core.Int32(1),

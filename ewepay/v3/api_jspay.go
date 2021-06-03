@@ -72,6 +72,7 @@ func (c *Component) JsAPIPrepay(ctx context.Context, opt jsapi.PrepayRequest) (p
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	opt.Appid = core.String(c.config.WechatMinAppID)
@@ -96,6 +97,7 @@ func (c *Component) JsAPICloseOrder(ctx context.Context, opt jsapi.CloseOrderReq
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
@@ -111,6 +113,7 @@ func (c *Component) JsAPIQueryOrderById(ctx context.Context, opt jsapi.QueryOrde
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
@@ -126,6 +129,7 @@ func (c *Component) JsAPIQueryOrderByOutTradeNo(ctx context.Context, opt jsapi.Q
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
@@ -209,6 +213,7 @@ func (c *Component) JsAPIRefund(ctx context.Context, opt JsAPIRefundRequest) (re
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	c.mu.Unlock()
@@ -274,6 +279,7 @@ func (c *Component) JsAPIGetRefund(ctx context.Context, outRefundNo string) (res
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	c.mu.Unlock()
@@ -309,6 +315,7 @@ func (c *Component) JsAPITradeBill(ctx context.Context, opt JsAPITradeBillReques
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	c.mu.Unlock()
@@ -350,6 +357,7 @@ func (c *Component) JsAPIFundFlowBill(ctx context.Context, opt JsAPIFundFlowBill
 	c.mu.Lock()
 	client, err := c.newClient(ctx)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	c.mu.Unlock()

@@ -122,6 +122,7 @@ func (c *Component) ParseNotify(ctx context.Context, request *http.Request, payC
 	c.mu.Lock()
 	err = c.requestValidator(ctx, request)
 	if err != nil {
+		c.mu.Unlock()
 		return
 	}
 	c.mu.Unlock()
@@ -143,6 +144,7 @@ func (c *Component) ParseNotify(ctx context.Context, request *http.Request, payC
 	}
 	c.mu.Lock()
 	if ntr.Resource.Algorithm != alg {
+		c.mu.Unlock()
 		err = fmt.Errorf("unsupported encryption algorithms: %s", ntr.Resource.Algorithm)
 		return
 	}
