@@ -7,10 +7,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gotomicro/ego"
 	"github.com/gotomicro/ego/core/elog"
 	v3 "github.com/vicnoah/ego-component/ewepay/v3"
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 )
 
 var ewepay *v3.Component
@@ -28,32 +31,33 @@ func main() {
 
 func invokeWepay() error {
 	ewepay = v3.Load("ewepay.one").Build()
-	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	// defer cancel()
-	// prepayID, err := ewepay.JsAPIPrepay(ctx, jsapi.PrepayRequest{
-	// 	Description: core.String("通威旗舰店-罗非鱼饲料"),
-	// 	OutTradeNo:  core.String("1217752501201407033233368029"),
-	// 	Attach:      core.String("自定义数据说明"),
-	// 	Amount: &jsapi.Amount{
-	// 		Total:    core.Int32(1),
-	// 		Currency: core.String("CNY"),
-	// 	},
-	// 	Payer: &jsapi.Payer{
-	// 		Openid: core.String("o_VZy5SZzHXxb4KByKQ2bnJ-Cbms"),
-	// 	},
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-	// jsObj, err := ewepay.WxRequestPayment(ctx, prepayID)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println(jsObj)
-	err := parseNt(ewepay)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	prepayID, err := ewepay.JsAPIPrepay(ctx, jsapi.PrepayRequest{
+		Description: core.String("通威旗舰店-罗非鱼饲料"),
+		OutTradeNo:  core.String("1217752501201407033233368029"),
+		Attach:      core.String("自定义数据说明"),
+		Amount: &jsapi.Amount{
+			Total:    core.Int32(1),
+			Currency: core.String("CNY"),
+		},
+		Payer: &jsapi.Payer{
+			Openid: core.String("o_VZy5SZzHXxb4KByKQ2bnJ-Cbms"),
+		},
+	})
 	if err != nil {
 		return err
 	}
+	// 请求微信支付数据,用于小程序支付
+	jsObj, err := ewepay.WxRequestPayment(ctx, prepayID)
+	if err != nil {
+		return err
+	}
+	fmt.Println(jsObj)
+	// err := parseNt(ewepay)
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
@@ -69,11 +73,17 @@ func parseNt(wepay *v3.Component) (err error) {
 	request.Header.Set("Wechatpay-Serial", "136F0674C080462AC4E91069D181A36")
 	request.Header.Set("Wechatpay-Timestamp", "1622647567")
 	request.Header.Set("Wechatpay-Nonce", "k3bTOg2GgDp1Z9TDXH4wMFapT5jTNsot")
-	nt, resource, err := wepay.ParseNotify(context.TODO(), request)
-	if err != nil {
-		return
-	}
-	fmt.Printf("%+v\n", nt)
-	fmt.Printf("%+v\n", resource)
+	err = wepay.ParseNotify(context.TODO(),
+		request,
+		func(ntr v3.NotifyRequest, resource v3.PayNotifyRequestResource) {
+			fmt.Println("接收到支付成功通知")
+			fmt.Println(ntr)
+			fmt.Println(resource)
+		},
+		func(ntr v3.NotifyRequest, resource v3.RefundNotifyRequestResource) {
+			fmt.Println("接收到退款通知,退款通知包含退款失败的通知,需要处理")
+			fmt.Println(ntr)
+			fmt.Println(resource)
+		})
 	return
 }

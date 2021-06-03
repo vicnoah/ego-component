@@ -103,13 +103,18 @@ type RefundNotifyRequestResource struct {
 	} `json:"amount"`
 }
 
+// PayNotifyCallbackFunc 支付通知回调函数
+type PayNotifyCallbackFunc func(ntr NotifyRequest, resource PayNotifyRequestResource)
+
+// RefundNotifyCallbackFunc 退款通知回调函数
+type RefundNotifyCallbackFunc func(ntr NotifyRequest, resource RefundNotifyRequestResource)
+
 // ParseNotify 支付通知解析函数
 // 需将参数封装为*http.Request,并且需携带[]byte body数据
-// 返回resource为接口,当为支付通知时返回PayNotifyRequestResource类型,当为退款通知时返回RefundNotifyRequestResource
-// 请进行类型断言使用
-func (c *Component) ParseNotify(ctx context.Context, request *http.Request) (nt NotifyRequest, resource interface{}, err error) {
+func (c *Component) ParseNotify(ctx context.Context, request *http.Request, payCallback PayNotifyCallbackFunc, refundCallback RefundNotifyCallbackFunc) (err error) {
 	var (
-		alg = "AEAD_AES_256_GCM" // 加密算法
+		alg   = "AEAD_AES_256_GCM" // 加密算法
+		isPay = false              // 是否是支付通知,否则是退款通知
 	)
 	// 读取并拷贝request body
 	bs, _ := io.ReadAll(request.Body)
@@ -120,34 +125,48 @@ func (c *Component) ParseNotify(ctx context.Context, request *http.Request) (nt 
 		return
 	}
 	c.mu.Unlock()
-	err = json.Unmarshal(bs, &nt)
+	var ntr NotifyRequest
+	err = json.Unmarshal(bs, &ntr)
 	if err != nil {
 		return
 	}
 	// 判断通知类型
-	switch nt.EventType {
+	switch ntr.EventType {
 	case PaySuccessNotifyType: // 支付成功
-		resource = PayNotifyRequestResource{}
+		isPay = true
 	case RefundSuccessNotifyType: // 退款成功
-		resource = RefundNotifyRequestResource{}
 	case RefundAbnormalNotifyType: // 退款异常
-		resource = RefundNotifyRequestResource{}
 	case RefundCloseNotifyType: // 退款关闭
-		resource = RefundNotifyRequestResource{}
 	default:
-		err = fmt.Errorf("pay err, event: %s", nt.EventType)
+		err = fmt.Errorf("pay err, event: %s", ntr.EventType)
 		return
 	}
 	c.mu.Lock()
-	if nt.Resource.Algorithm != alg {
-		err = fmt.Errorf("unsupported encryption algorithms: %s", nt.Resource.Algorithm)
+	if ntr.Resource.Algorithm != alg {
+		err = fmt.Errorf("unsupported encryption algorithms: %s", ntr.Resource.Algorithm)
 		return
 	}
-	plaintext, err := utils.DecryptAES256GCM(c.config.AesKeyPasswd, nt.Resource.AssociatedData, nt.Resource.Nonce, nt.Resource.Ciphertext)
+	plaintext, err := utils.DecryptAES256GCM(c.config.AesKeyPasswd, ntr.Resource.AssociatedData, ntr.Resource.Nonce, ntr.Resource.Ciphertext)
 	c.mu.Unlock()
 	if err != nil {
 		return
 	}
+	if isPay {
+		var resource PayNotifyRequestResource
+		err = json.Unmarshal([]byte(plaintext), &resource)
+		if err != nil {
+			return
+		}
+		// 支付回调
+		payCallback(ntr, resource)
+		return
+	}
+	var resource RefundNotifyRequestResource
 	err = json.Unmarshal([]byte(plaintext), &resource)
+	if err != nil {
+		return
+	}
+	// 退款回调
+	refundCallback(ntr, resource)
 	return
 }
