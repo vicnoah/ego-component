@@ -141,28 +141,28 @@ func (c *Component) JsAPIQueryOrderByOutTradeNo(ctx context.Context, opt jsapi.Q
 
 // JsAPIRefundRequest jsapi发起退款请求
 type JsAPIRefundRequest struct {
-	TransactionID string `json:"transaction_id"`
-	OutRefundNo   string `json:"out_refund_no"`
-	Reason        string `json:"reason"`
-	NotifyURL     string `json:"notify_url"`
-	FundsAccount  string `json:"funds_account"`
+	TransactionID string `json:"transaction_id,omitempty"`
+	OutRefundNo   string `json:"out_refund_no,omitempty"`
+	Reason        string `json:"reason,omitempty"`
+	NotifyURL     string `json:"notify_url,omitempty"`
+	FundsAccount  string `json:"funds_account,omitempty"`
 	Amount        struct {
 		Refund int `json:"refund"`
 		From   []struct {
 			Account string `json:"account"`
 			Amount  int    `json:"amount"`
-		} `json:"from"`
+		} `json:"from,omitempty"`
 		Total    int    `json:"total"`
 		Currency string `json:"currency"`
 	} `json:"amount"`
 	GoodsDetail []struct {
 		MerchantGoodsID  string `json:"merchant_goods_id"`
-		WechatpayGoodsID string `json:"wechatpay_goods_id"`
-		GoodsName        string `json:"goods_name"`
+		WechatpayGoodsID string `json:"wechatpay_goods_id,omitempty"`
+		GoodsName        string `json:"goods_name,omitempty"`
 		UnitPrice        int    `json:"unit_price"`
 		RefundAmount     int    `json:"refund_amount"`
 		RefundQuantity   int    `json:"refund_quantity"`
-	} `json:"goods_detail"`
+	} `json:"goods_detail,omitempty"`
 }
 
 // JsAPIRefundResponse jsapi发起退款响应
@@ -216,6 +216,7 @@ func (c *Component) JsAPIRefund(ctx context.Context, opt JsAPIRefundRequest) (re
 		c.mu.Unlock()
 		return
 	}
+	opt.NotifyURL = c.config.NotifyURL
 	c.mu.Unlock()
 	result, err := client.Post(ctx, "https://api.mch.weixin.qq.com/v3/refund/domestic/refunds", opt)
 	if err != nil {
@@ -298,9 +299,9 @@ func (c *Component) JsAPIGetRefund(ctx context.Context, outRefundNo string) (res
 
 // JsAPITradeBillRequest 申请交易账单请求
 type JsAPITradeBillRequest struct {
-	BillDate string `json:"bill_date"` // 账单日期
-	BillType string `json:"bill_type"` // 账单类型
-	TarType  string `json:"tar_type"`  // 压缩包类型
+	BillDate string `json:"bill_date"`           // 账单日期
+	BillType string `json:"bill_type,omitempty"` // 账单类型
+	TarType  string `json:"tar_type,omitempty"`  // 压缩包类型
 }
 
 // JsAPITradeBillResponse 申请交易账单响应
@@ -340,9 +341,9 @@ func (c *Component) JsAPITradeBill(ctx context.Context, opt JsAPITradeBillReques
 
 // JsAPIFundFlowBillRequest 申请资金账单请求
 type JsAPIFundFlowBillRequest struct {
-	BillDate string `json:"bill_date"` // 账单日期
-	BillType string `json:"bill_type"` // 账单类型
-	TarType  string `json:"tar_type"`  // 压缩包类型
+	BillDate string `json:"bill_date"`           // 账单日期
+	BillType string `json:"bill_type,omitempty"` // 账单类型
+	TarType  string `json:"tar_type,omitempty"`  // 压缩包类型
 }
 
 // JsAPIFundFlowBillResponse 申请资金账单响应

@@ -12,8 +12,6 @@ import (
 	"github.com/gotomicro/ego"
 	"github.com/gotomicro/ego/core/elog"
 	v3 "github.com/vicnoah/ego-component/ewepay/v3"
-	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 )
 
 var ewepay *v3.Component
@@ -33,31 +31,57 @@ func invokeWepay() error {
 	ewepay = v3.Load("ewepay.one").Build()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	prepayID, err := ewepay.JsAPIPrepay(ctx, jsapi.PrepayRequest{
-		Description: core.String("通威旗舰店-罗非鱼饲料"),
-		OutTradeNo:  core.String("1217752501201407033233368030"),
-		Attach:      core.String("自定义数据说明"),
-		Amount: &jsapi.Amount{
-			Total:    core.Int32(1),
-			Currency: core.String("CNY"),
-		},
-		Payer: &jsapi.Payer{
-			Openid: core.String("o_VZy5SZzHXxb4KByKQ2bnJ-Cbms"),
-		},
-	})
-	if err != nil {
-		return err
-	}
-	// 请求微信支付数据,用于小程序支付
-	jsObj, err := ewepay.WxRequestPayment(ctx, prepayID)
-	if err != nil {
-		return err
-	}
-	fmt.Println(jsObj)
+	// prepayID, err := ewepay.JsAPIPrepay(ctx, jsapi.PrepayRequest{
+	// 	Description: core.String("通威旗舰店-罗非鱼饲料"),
+	// 	OutTradeNo:  core.String("1217752501201407033233368034"),
+	// 	Attach:      core.String("自定义数据说明"),
+	// 	Amount: &jsapi.Amount{
+	// 		Total:    core.Int32(1),
+	// 		Currency: core.String("CNY"),
+	// 	},
+	// 	Payer: &jsapi.Payer{
+	// 		Openid: core.String("o_VZy5SZzHXxb4KByKQ2bnJ-Cbms"),
+	// 	},
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+	// // 请求微信支付数据,用于小程序支付
+	// jsObj, err := ewepay.WxRequestPayment(ctx, prepayID)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Println(jsObj)
 	// err := parseNt(ewepay)
 	// if err != nil {
 	// 	return err
 	// }
+	resp, err := ewepay.JsAPIRefund(ctx, v3.JsAPIRefundRequest{
+		TransactionID: "000",
+		OutRefundNo:   "000",
+		Reason:        "商品已售罄",
+		Amount: struct {
+			Refund int "json:\"refund\""
+			From   []struct {
+				Account string "json:\"account\""
+				Amount  int    "json:\"amount\""
+			} "json:\"from,omitempty\""
+			Total    int    "json:\"total\""
+			Currency string "json:\"currency\""
+		}{
+			Refund:   1,
+			Total:    1,
+			Currency: "CNY",
+			From: make([]struct {
+				Account string "json:\"account\""
+				Amount  int    "json:\"amount\""
+			}, 0),
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	_ = resp
 	return nil
 }
 
