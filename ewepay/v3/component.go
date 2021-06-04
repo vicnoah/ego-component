@@ -34,6 +34,9 @@ func newComponent(c *Container) *Component {
 		config:        c.config,
 		mchPrivateKey: c.mchPrivateKey,
 	}
+	if !c.config.IsLoadCert {
+		return com
+	}
 	// 初始化调用获取微信支付证书,随后证书应该使用定时任务自动更新
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
