@@ -142,6 +142,7 @@ func (c *Component) JsAPIQueryOrderByOutTradeNo(ctx context.Context, opt jsapi.Q
 // JsAPIRefundRequest jsapi发起退款请求
 type JsAPIRefundRequest struct {
 	TransactionID string `json:"transaction_id,omitempty"`
+	OutTradeNo    string `json:"out_trade_no,omitempty"`
 	OutRefundNo   string `json:"out_refund_no,omitempty"`
 	Reason        string `json:"reason,omitempty"`
 	NotifyURL     string `json:"notify_url,omitempty"`
