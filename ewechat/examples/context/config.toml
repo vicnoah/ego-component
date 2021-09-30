@@ -1,0 +1,19 @@
+# 微信小程序相关配置
+[config.wechat]
+    EnableAccessInterceptor = true
+    EnableAccessInterceptorRes = true
+    appId = "wxe2d7181d0138e164"
+    appSecret = "44b0ea1df8f8d07826dc57ef57d7c3ff"
+    debug = true
+    encodingAESKey = "vector-china.cn123"
+    payKey = ""
+    payMchId = ""
+    payNotifyURL = ""
+    token = ""
+[redis.test]
+    debug = true # ego增加redis debug，打开后可以看到，配置名，地址，耗时，请求数据，响应数据
+    addr = "172.31.233.4:6379"
+    enableAccessInterceptor = true
+    enableAccessInterceptorReq = true
+    enableAccessInterceptorRes = true
+    password = "fengziren.top"
