@@ -85,7 +85,6 @@ func (ctx *Context) GetAccessTokenFromServer() (resAccessToken ResAccessToken, e
 		err = fmt.Errorf("get access_token error : errcode=%v , errormsg=%v", resAccessToken.ErrCode, resAccessToken.ErrMsg)
 		return
 	}
-
 	accessTokenCacheKey := fmt.Sprintf("access_token_%s", ctx.AppID)
 	expires := resAccessToken.ExpiresIn - 1500
 	err = ctx.Cache.Set(context.Background(), accessTokenCacheKey, resAccessToken.AccessToken, time.Duration(expires)*time.Second)

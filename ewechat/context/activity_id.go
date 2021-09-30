@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/vicnoah/ego-component/ewechat/util"
@@ -69,7 +70,6 @@ func (ctx *Context) GetActivityId(accessToken, openid string) (activityId string
 }
 
 // GetAcitvityIdFromServer 强制从微信服务器获取ID
-// 存入redis忽略掉过期时间，永久有效
 func (ctx *Context) GetAcitvityIdFromServer(accessToken, openid string) (resActivityId ResActivityId, err error) {
 	url := fmt.Sprintf("%s?access_token=%s&unionid=%s", ActivityIdURL, accessToken, openid)
 	var body []byte
@@ -88,8 +88,8 @@ func (ctx *Context) GetAcitvityIdFromServer(accessToken, openid string) (resActi
 	}
 
 	activityIdCacheKey := fmt.Sprintf("activity_id_%s", openid)
-	// expirationTime := resActivityId.ExpirationTime
-	err = ctx.Cache.Set(context.Background(), activityIdCacheKey, resActivityId.ActivityId, 0)
+	expirationTime := resActivityId.ExpirationTime - time.Now().Unix() - 1500
+	err = ctx.Cache.Set(context.Background(), activityIdCacheKey, resActivityId.ActivityId, time.Duration(expirationTime)*time.Second)
 	if err != nil {
 		err = fmt.Errorf("set activity_id error %w", err)
 		return
