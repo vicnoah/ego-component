@@ -141,14 +141,11 @@ func (c *Component) ParseNotify(ctx context.Context, request *http.Request, payC
 		err = fmt.Errorf("pay err, event: %s", ntr.EventType)
 		return
 	}
-	c.mu.Lock()
 	if ntr.Resource.Algorithm != alg {
-		c.mu.Unlock()
 		err = fmt.Errorf("unsupported encryption algorithms: %s", ntr.Resource.Algorithm)
 		return
 	}
 	plaintext, err := utils.DecryptAES256GCM(c.config.AesKeyPasswd, ntr.Resource.AssociatedData, ntr.Resource.Nonce, ntr.Resource.Ciphertext)
-	c.mu.Unlock()
 	if err != nil {
 		return
 	}

@@ -29,8 +29,8 @@ type GetCertificatesResponse struct {
 
 // GetCertificates 获取微信支付证书
 func (c *Component) GetCertificates(ctx context.Context) (certs []*x509.Certificate, err error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClientWithoutValidator(ctx)
 	if err != nil {
 		return

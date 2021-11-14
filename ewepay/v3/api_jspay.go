@@ -29,13 +29,13 @@ type WxRequestPaymentResponse struct {
 // WxRequestPayment 微信发起支付数据生成
 // prepayID 预支付id
 func (c *Component) WxRequestPayment(ctx context.Context, prepayID string) (jsonObj string, err error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	nonceStr := strings.ToUpper(GetRandomString(32))
 	pack := fmt.Sprintf("prepay_id=%s", prepayID)
 	signType := "RSA"
-	c.mu.Lock()
 	paySign, err := utils.SignSHA256WithRSA(fmt.Sprintf("%s\n%s\n%s\n%s\n", c.config.WechatMinAppID, timeStamp, nonceStr, pack), c.mchPrivateKey)
-	c.mu.Unlock()
 	if err != nil {
 		return
 	}

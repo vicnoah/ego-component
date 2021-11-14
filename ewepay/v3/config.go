@@ -15,6 +15,7 @@ type Config struct {
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
-		IsLoadCert: true,
+		IsLoadCert:      true,
+		LoadCertTimeout: 30,
 	}
 }
