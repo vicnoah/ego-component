@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
-	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+	"git.vectec.io/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"git.vectec.io/wechatpay-apiv3/wechatpay-go/core/consts"
+	"git.vectec.io/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 // 数据验证
