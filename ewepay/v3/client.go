@@ -3,7 +3,6 @@ package v3
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 )
@@ -31,8 +30,8 @@ func (c *Component) withOutValidatorOptions() (opts []core.ClientOption) {
 	opts = append(opts, core.WithMerchantCredential(c.config.MchID, c.config.MchCertSN, c.mchPrivateKey)) // 必要，使用商户信息生成默认 WechatPayCredential
 	opts = append(opts, core.WithoutValidator())                                                          // 必要，使用微信支付平台证书列表生成默认,此处忽略签名验证
 	opts = append(opts, core.WithHTTPClient(customHTTPClient))                                            // 可选，设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-	opts = append(opts, core.WithTimeout(2*time.Second))                                                  // 可选，设置自定义超时时间，不设置时使用 http.Client{} 默认超时
-	opts = append(opts, core.WithHeader(customHTTPHeader))                                                // 可选，设置自定义请求头
+	// opts = append(opts, core.WithTimeout(2*time.Second))                                                  // 可选，设置自定义超时时间，不设置时使用 http.Client{} 默认超时
+	opts = append(opts, core.WithHeader(customHTTPHeader)) // 可选，设置自定义请求头
 	return
 }
 
@@ -45,7 +44,7 @@ func (c *Component) normalOptions() (opts []core.ClientOption) {
 	opts = append(opts, core.WithMerchantCredential(c.config.MchID, c.config.MchCertSN, c.mchPrivateKey)) // 必要，使用商户信息生成默认 WechatPayCredential
 	opts = append(opts, core.WithWechatPayValidator(c.wechatPayCertList))                                 // 必要，使用微信支付平台证书列表生成默认,此处忽略签名验证
 	opts = append(opts, core.WithHTTPClient(customHTTPClient))                                            // 可选，设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-	opts = append(opts, core.WithTimeout(2*time.Second))                                                  // 可选，设置自定义超时时间，不设置时使用 http.Client{} 默认超时
-	opts = append(opts, core.WithHeader(customHTTPHeader))                                                // 可选，设置自定义请求头
+	// opts = append(opts, core.WithTimeout(2*time.Second))                                                  // 可选，设置自定义超时时间，不设置时使用 http.Client{} 默认超时
+	opts = append(opts, core.WithHeader(customHTTPHeader)) // 可选，设置自定义请求头
 	return
 }

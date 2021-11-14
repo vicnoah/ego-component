@@ -5,3 +5,4 @@ mchPrivateKeyPath = "" # 商户API私钥路径
 wechatMinAppId = "" # 微信小程序appid
 aesKeyPasswd = "" # 微信支付aes加密密码
 notifyUrl = "https://www.weixin.qq.com/wxpay/pay.php" # 微信支付通知url
+loadCertTimeout = 10 # 加载证书超时时间

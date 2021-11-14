@@ -17,7 +17,7 @@ const PackageName = "component.ewepay"
 type (
 	// Component ewepay 组件
 	Component struct {
-		mu                sync.Mutex // 锁
+		mu                sync.RWMutex // 锁
 		name              string
 		config            *Config
 		mchPrivateKey     *rsa.PrivateKey     // 商户API私钥
@@ -38,7 +38,7 @@ func newComponent(c *Container) *Component {
 		return com
 	}
 	// 初始化调用获取微信支付证书,随后证书应该使用定时任务自动更新
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(c.config.LoadCertTimeout))
 	defer cancel()
 	certs, err := com.GetCertificates(ctx)
 	if err != nil {

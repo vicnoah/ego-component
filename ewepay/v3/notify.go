@@ -116,16 +116,15 @@ func (c *Component) ParseNotify(ctx context.Context, request *http.Request, payC
 		alg   = "AEAD_AES_256_GCM" // 加密算法
 		isPay = false              // 是否是支付通知,否则是退款通知
 	)
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	// 读取并拷贝request body
 	bs, _ := io.ReadAll(request.Body)
 	request.Body = io.NopCloser(bytes.NewBuffer(bs))
-	c.mu.Lock()
 	err = c.requestValidator(ctx, request)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
-	c.mu.Unlock()
 	var ntr NotifyRequest
 	err = json.Unmarshal(bs, &ntr)
 	if err != nil {

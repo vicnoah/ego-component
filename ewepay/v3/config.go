@@ -9,6 +9,7 @@ type Config struct {
 	AesKeyPasswd      string `toml:"aesKeyPasswd"`      // 微信aeskey密码
 	NotifyURL         string `toml:"notifyUrl"`         // 微信支付通知url
 	IsLoadCert        bool   `toml:"isLoadCert"`        // 是否初始化加载微信支付证书,默认加载
+	LoadCertTimeout   int    `toml:"loadCertTimeout"`   // 加载证书超时时间,单位秒
 }
 
 // DefaultConfig ...

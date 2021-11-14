@@ -69,16 +69,15 @@ func (c *Component) WxRequestPayment(ctx context.Context, prepayID string) (json
 // 	},
 // }
 func (c *Component) JsAPIPrepay(ctx context.Context, opt jsapi.PrepayRequest) (prepayID string, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
 	opt.Appid = core.String(c.config.WechatMinAppID)
 	opt.Mchid = core.String(c.config.MchID)
 	opt.NotifyUrl = core.String(c.config.NotifyURL)
-	c.mu.Unlock()
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, _, err := svc.Prepay(ctx, opt)
 	if err != nil {
@@ -94,14 +93,13 @@ func (c *Component) JsAPIPrepay(ctx context.Context, opt jsapi.PrepayRequest) (p
 // 1. 商户订单支付失败需要生成新单号重新发起支付，要对原订单号调用关单，避免重复支付；
 // 2. 系统下单后，用户支付超时，系统退出不再受理，避免用户继续，请调用关单接口。
 func (c *Component) JsAPICloseOrder(ctx context.Context, opt jsapi.CloseOrderRequest) (err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
-	c.mu.Unlock()
 	svc := jsapi.JsapiApiService{Client: client}
 	_, err = svc.CloseOrder(ctx, opt)
 	return
@@ -110,14 +108,13 @@ func (c *Component) JsAPICloseOrder(ctx context.Context, opt jsapi.CloseOrderReq
 // JsAPIQueryOrderById 微信支付订单号查询订单
 // 商户可以通过查询订单接口主动查询订单状态
 func (c *Component) JsAPIQueryOrderById(ctx context.Context, opt jsapi.QueryOrderByIdRequest) (resp *payments.Transaction, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
-	c.mu.Unlock()
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, _, err = svc.QueryOrderById(ctx, opt)
 	return
@@ -126,14 +123,13 @@ func (c *Component) JsAPIQueryOrderById(ctx context.Context, opt jsapi.QueryOrde
 // JsAPIQueryOrderByOutTradeNo 商户订单号查询订单
 // 商户可以通过查询订单接口主动查询订单状态
 func (c *Component) JsAPIQueryOrderByOutTradeNo(ctx context.Context, opt jsapi.QueryOrderByOutTradeNoRequest) (resp *payments.Transaction, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
 	opt.Mchid = core.String(c.config.MchID)
-	c.mu.Unlock()
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, _, err = svc.QueryOrderByOutTradeNo(ctx, opt)
 	return
@@ -211,14 +207,13 @@ type JsAPIRefundResponse struct {
 
 // JsAPIRefund 发起退款请求
 func (c *Component) JsAPIRefund(ctx context.Context, opt JsAPIRefundRequest) (resp JsAPIRefundResponse, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
 	opt.NotifyURL = c.config.NotifyURL
-	c.mu.Unlock()
 	result, err := client.Post(ctx, "https://api.mch.weixin.qq.com/v3/refund/domestic/refunds", opt)
 	if err != nil {
 		return
@@ -278,13 +273,12 @@ type JsAPIGetRefundResponse struct {
 // JsAPIGetRefund 查询退款
 // outRefundNo 退款单号
 func (c *Component) JsAPIGetRefund(ctx context.Context, outRefundNo string) (resp JsAPIGetRefundResponse, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
-	c.mu.Unlock()
 	result, err := client.Get(ctx, fmt.Sprintf("https://api.mch.weixin.qq.com/v3/refund/domestic/refunds/%s", outRefundNo))
 	if err != nil {
 		return
@@ -314,13 +308,12 @@ type JsAPITradeBillResponse struct {
 
 // JsAPITradeBill 申请交易账单
 func (c *Component) JsAPITradeBill(ctx context.Context, opt JsAPITradeBillRequest) (resp JsAPITradeBillResponse, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
-	c.mu.Unlock()
 	// Setup Query Params
 	queryParams := url.Values{}
 	queryParams.Add("bill_date", opt.BillDate)
@@ -356,13 +349,12 @@ type JsAPIFundFlowBillResponse struct {
 
 // JsAPIFundFlowBill 申请资金账单
 func (c *Component) JsAPIFundFlowBill(ctx context.Context, opt JsAPIFundFlowBillRequest) (resp JsAPIFundFlowBillResponse, err error) {
-	c.mu.Lock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	client, err := c.newClient(ctx)
 	if err != nil {
-		c.mu.Unlock()
 		return
 	}
-	c.mu.Unlock()
 	// Setup Query Params
 	queryParams := url.Values{}
 	queryParams.Add("bill_date", opt.BillDate)
