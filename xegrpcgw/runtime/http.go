@@ -42,6 +42,11 @@ func DefaultHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshal
 		w.WriteHeader(http.StatusOK)
 		setHeaderFlag = true
 	}
+	if pb.Code == 2 {
+		w.WriteHeader(http.StatusOK)
+		setHeaderFlag = true
+		pb.Message = "OK"
+	}
 
 	w.Header().Del("Trailer")
 	w.Header().Del("Transfer-Encoding")
