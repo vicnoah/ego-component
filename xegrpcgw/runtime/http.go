@@ -8,6 +8,7 @@ import (
 	"net/textproto"
 	"strings"
 
+	"github.com/gotomicro/ego/core/elog"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -45,6 +46,7 @@ func DefaultHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshal
 	if pb.Code == 2 {
 		w.WriteHeader(http.StatusOK)
 		setHeaderFlag = true
+		elog.Errorf("error: %s\n", pb.Message)
 		pb.Message = "OK"
 	}
 
