@@ -1,14 +1,18 @@
 [server.test]
    host="0.0.0.0"
    port=8081
+   mode="debug"
    enableURLPathTrans=true
    enableTraceInterceptor=true
    enableMetricInterceptor=false
+	enableAccessInterceptorReq=true          # 是否开启记录请求参数，默认不开启
+	enableAccessInterceptorRes=true          # 是否开启记录响应参数，默认不开启
+   enableLocalMainIP=true
    enableCors=true
-   accessControlAllowOrigin="*"
-   accessControlAllowHeaders="Content-Type,AccessToken,X-CSRF-Token,X-App-Token,Authorization,Token"
-   accessControlAllowCredentials="true"
-   accessControlAllowMethods="GET,POST,PUT,DELETE,OPTIONS"
-   contentType="application/json;charset=UTF-8"
+   accessControlAllowOrigin=["*"]
+   accessControlAllowHeaders=["Content-Type","AccessToken","X-CSRF-Token","X-App-Token","Authorization","Token"]
+   accessControlAllowCredentials=true
+   accessControlAllowMethods=["GET","POST","PUT","DELETE","OPTIONS"]
    incomingHeaders=["Token", "X-User-Id"]
    grpcEndpoint="127.0.0.1:9000"
+   ginRelativePath="/api/*action"
