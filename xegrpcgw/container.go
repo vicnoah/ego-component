@@ -54,7 +54,7 @@ func Load(key string) *Container {
 
 // Build 构建组件
 // dopt 参数一为日志记录特殊options
-func (c *Container) Build(options ...Option) *Component {
+func (c *Container) Build(options ...Option) *egin.Component {
 	// 初始化gin framework
 	c.eg = egin.Load(c.configKey).Build(c.eginOptions...)
 	// 跨域

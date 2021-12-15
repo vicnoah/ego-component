@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gotomicro/ego"
 	"github.com/gotomicro/ego/core/elog"
+	"github.com/gotomicro/ego/server/egin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/vicnoah/ego-component/xegrpcgw"
 	v1 "github.com/vicnoah/ego-component/xegrpcgw/examples/space/api/pb/v1"
@@ -14,7 +15,7 @@ import (
 
 // export EGO_DEBUG=true && go run main.go --config=config.toml
 func main() {
-	if err := ego.New().Serve(func() *xegrpcgw.Component {
+	if err := ego.New().Serve(func() *egin.Component {
 		server := xegrpcgw.Load("server.test").Build(xegrpcgw.WithGrpcDialOptions(
 			grpc.WithInsecure(),
 		), xegrpcgw.WithService(func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
