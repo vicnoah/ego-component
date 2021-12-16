@@ -59,15 +59,15 @@ func (c *Container) Build(options ...Option) *egin.Component {
 	c.eg = egin.Load(c.configKey).Build(c.eginOptions...)
 	// 跨域
 	if c.config.EnableCors {
-		corsIntercepter(c)
+		withCorsIntercepter(c)
 	}
 	// 处理muxOptions
 	// 处理http转grpc的header及ecode
-	incomingHeaderMatcherOption(c)
-	customerEcodeOption(c)
-	httpResponseModifier(c)
+	withIncomingHeaderMatcherOption(c)
+	withCustomerEcodeOption(c)
+	withHttpResponseModifier(c)
 	if c.config.EnableURLPathTrans {
-		urlPathTransOption(c)
+		withUrlPathTransOption(c)
 	}
 
 	// 处理grpc-gateway及参数注入

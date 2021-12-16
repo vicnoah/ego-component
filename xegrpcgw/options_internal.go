@@ -11,12 +11,17 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gotomicro/ego/core/eerrors"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	inruntime "github.com/vicnoah/ego-component/xegrpcgw/runtime"
 )
 
-// corsIntercepter 跨域注入
-func corsIntercepter(c *Container) {
+const (
+	urlMetadataName = "url" // url信息
+)
+
+// withCorsIntercepter 跨域注入
+func withCorsIntercepter(c *Container) {
 	corsConf := cors.Config{
 		AllowOrigins:     c.config.AccessControlAllowOrigin,
 		AllowMethods:     c.config.AccessControlAllowMethods,
@@ -31,18 +36,20 @@ func corsIntercepter(c *Container) {
 	c.eg.Use(cors.New(corsConf))
 }
 
-// customerEcodeOption 自定义错误码
-func customerEcodeOption(c *Container) {
+// withCustomerEcodeOption 自定义错误码
+func withCustomerEcodeOption(c *Container) {
+	// grpc ecode转http error
 	c.muxOptions = append(c.muxOptions, runtime.WithErrorHandler(func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
-		inruntime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+		inruntime.DefaultHTTPErrorHandler(ctx, c.config.MinECode, mux, marshaler, w, r, err)
 	}))
+	// grpc stream error处理
 	c.muxOptions = append(c.muxOptions, runtime.WithStreamErrorHandler(func(ctx context.Context, err error) *status.Status {
-		return status.Convert(err)
+		return eerrors.FromError(err).GRPCStatus()
 	}))
 }
 
-// incomintHeaderMatcherOption 传输自定义http头到grpc server
-func incomingHeaderMatcherOption(c *Container) {
+// withIncomintHeaderMatcherOption 传输自定义http头到grpc server
+func withIncomingHeaderMatcherOption(c *Container) {
 	c.muxOptions = append(c.muxOptions, runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
 		// 匹配http请求头到grpc
 		for _, header := range c.config.IncomingHeaders {
@@ -54,8 +61,8 @@ func incomingHeaderMatcherOption(c *Container) {
 	}))
 }
 
-// urlPathTransOption 传输url到grpc server
-func urlPathTransOption(c *Container) {
+// withUrlPathTransOption 传输url到grpc server
+func withUrlPathTransOption(c *Container) {
 	c.muxOptions = append(c.muxOptions, runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
 		md := make(metadata.MD)
 		md[urlMetadataName] = []string{req.URL.Path}
@@ -63,8 +70,8 @@ func urlPathTransOption(c *Container) {
 	}))
 }
 
-// httpResponseModifier 自定义响应头
-func httpResponseModifier(c *Container) {
+// withHttpResponseModifier 自定义响应头
+func withHttpResponseModifier(c *Container) {
 	c.muxOptions = append(c.muxOptions, runtime.WithForwardResponseOption(func(ctx context.Context, w http.ResponseWriter, p proto.Message) error {
 		md, ok := runtime.ServerMetadataFromContext(ctx)
 		if !ok {

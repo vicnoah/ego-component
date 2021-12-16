@@ -8,10 +8,10 @@ import (
 	"net/textproto"
 	"strings"
 
+	"github.com/gotomicro/ego/core/eerrors"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
-	"google.golang.org/grpc/status"
 )
 
 // MetadataHeaderPrefix is the http prefix that represents custom metadata
@@ -31,14 +31,14 @@ const MetadataTrailerPrefix = "Grpc-Trailer-"
 // If otherwise, it replies with http.StatusInternalServerError.
 //
 // The response body written by this function is a Status message marshaled by the Marshaler.
-func DefaultHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
-	var setHeaderFlag bool
+func DefaultHTTPErrorHandler(ctx context.Context, code int32, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
+	var setHeaderFlag bool // 是否设置header,header仅能设置一次
 	// return Internal when Marshal failed
 	const fallback = `{"code": 13, "message": "failed to marshal error message"}`
 
-	s := status.Convert(err)
-	pb := s.Proto()
-	if pb.Code >= 10000 {
+	// 处理error,采用ego errors实现
+	se := eerrors.FromError(err)
+	if se.Code >= code {
 		w.WriteHeader(http.StatusOK)
 		setHeaderFlag = true
 	}
@@ -52,13 +52,14 @@ func DefaultHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshal
 	w.Header().Del("Trailer")
 	w.Header().Del("Transfer-Encoding")
 
-	contentType := marshaler.ContentType(pb)
+	contentType := marshaler.ContentType(se)
 	w.Header().Set("Content-Type", contentType)
 
-	buf, merr := marshaler.Marshal(pb)
+	buf, merr := marshaler.Marshal(se)
 	if merr != nil {
-		grpclog.Infof("Failed to marshal error message %q: %v", s, merr)
+		grpclog.Infof("Failed to marshal error message %q: %v", se, merr)
 		w.WriteHeader(http.StatusInternalServerError)
+		setHeaderFlag = true
 		if _, err := io.WriteString(w, fallback); err != nil {
 			grpclog.Infof("Failed to write response: %v", err)
 		}
@@ -85,8 +86,7 @@ func DefaultHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshal
 		w.Header().Set("Transfer-Encoding", "chunked")
 	}
 	if !setHeaderFlag {
-		st := HTTPStatusFromCode(s.Code())
-		w.WriteHeader(st)
+		w.WriteHeader(se.ToHTTPStatusCode())
 	}
 	if _, err := w.Write(buf); err != nil {
 		grpclog.Infof("Failed to write response: %v", err)
