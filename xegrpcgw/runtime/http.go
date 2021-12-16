@@ -12,6 +12,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/status"
 )
 
 // MetadataHeaderPrefix is the http prefix that represents custom metadata
@@ -32,12 +33,26 @@ const MetadataTrailerPrefix = "Grpc-Trailer-"
 //
 // The response body written by this function is a Status message marshaled by the Marshaler.
 func DefaultHTTPErrorHandler(ctx context.Context, code int32, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
-	var setHeaderFlag bool // 是否设置header,header仅能设置一次
+	var (
+		setHeaderFlag bool // 是否设置header,header仅能设置一次
+		se            *eerrors.EgoError
+	)
 	// return Internal when Marshal failed
 	const fallback = `{"code": 13, "message": "failed to marshal error message"}`
 
-	// 处理error,采用ego errors实现
-	se := eerrors.FromError(err)
+	gs, ok := status.FromError(err)
+	if ok {
+		// grpc status error
+		se = eerrors.New(
+			int(gs.Code()),
+			"ecode",
+			gs.Message(),
+		)
+	} else {
+		// ego errors.EgoError
+		// 处理error,采用ego errors实现
+		se = eerrors.FromError(err)
+	}
 	if se.Code >= code {
 		w.WriteHeader(http.StatusOK)
 		setHeaderFlag = true
