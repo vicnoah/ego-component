@@ -41,7 +41,7 @@ func DefaultHTTPErrorHandler(ctx context.Context, code int32, mux *runtime.Serve
 	const fallback = `{"code": 13, "message": "failed to marshal error message"}`
 
 	gs, ok := status.FromError(err)
-	if ok {
+	if ok && int32(gs.Code()) >= code {
 		// grpc status error
 		se = eerrors.New(
 			int(gs.Code()),
@@ -53,7 +53,7 @@ func DefaultHTTPErrorHandler(ctx context.Context, code int32, mux *runtime.Serve
 		// 处理error,采用ego errors实现
 		se = eerrors.FromError(err)
 	}
-	if se.Code >= code {
+	if se.Code >= code || se.Code == int32(codes.Unknown) || se.Code == int32(codes.InvalidArgument) {
 		w.WriteHeader(http.StatusOK)
 		setHeaderFlag = true
 	}
